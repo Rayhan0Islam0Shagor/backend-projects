@@ -1,11 +1,22 @@
 import { generateId } from '../utils/counter.model';
-import { IStudent } from './student.interface';
 import StudentModel from './student.model';
+import { IStudent } from './student.validation';
 
-const createStudentIntoDb = async (student: IStudent) => {
-  student.id = await generateId('student');
+const createStudentIntoDb = async (studentData: IStudent) => {
+  studentData.id = await generateId('student');
 
-  const result = await StudentModel.create(student);
+  // const result = await StudentModel.create(student);
+
+  // static method
+
+  const student = new StudentModel(); // create an instance
+
+  if (await student.isUserExists(studentData.id)) {
+    throw new Error('Student with this ID already exists.');
+  }
+
+  const result = await student.save(); // built in instance method
+
   return result;
 };
 

@@ -1,11 +1,16 @@
 import { Request, Response } from 'express';
 import { studentService } from './student.service';
+import { validateStudent } from './student.validation';
+import { z } from 'zod';
+import { getErrorMessage } from '../../utils/errorMessage';
 
 const createStudent = async (req: Request, res: Response) => {
   try {
     const student = req.body;
 
-    const result = await studentService.createStudentIntoDb(student);
+    const validStudent = validateStudent(student);
+
+    const result = await studentService.createStudentIntoDb(validStudent);
 
     res.status(201).json({
       success: true,
@@ -13,15 +18,19 @@ const createStudent = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    console.log(
-      `⚠️ ~ file: student.controller.ts:16 ~ createStudent ~ error:`,
-      error,
-    );
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: error.message as unknown as string,
-    });
+    if (error instanceof z.ZodError) {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid student data',
+        error: getErrorMessage(error.errors),
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Internal server error',
+        error: error as unknown as any,
+      });
+    }
   }
 };
 

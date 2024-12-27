@@ -1,3 +1,5 @@
+import { Model } from 'mongoose';
+
 export interface IStudent {
   id: string;
   name: Username;
@@ -37,3 +39,9 @@ export type Guardian = {
   motherOccupation: string;
   motherContactNo: string;
 };
+
+export type StudentMethod = {
+  isUserExists(id: string): Promise<IStudent | null>;
+};
+
+export type StudentStaticMethod = Model<IStudent, {}, StudentMethod>;
