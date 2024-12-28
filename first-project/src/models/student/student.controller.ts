@@ -6,9 +6,9 @@ import { getErrorMessage } from '../../utils/errorMessage';
 
 const createStudent = async (req: Request, res: Response) => {
   try {
-    const student = req.body;
+    const studentData = req.body;
 
-    const validStudent = validateStudent(student);
+    const validStudent = validateStudent(studentData);
 
     const result = await studentService.createStudentIntoDb(validStudent);
 
@@ -80,8 +80,29 @@ const getStudentById = async (req: Request, res: Response) => {
   }
 };
 
+const deleteStudent = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const student = await studentService.deleteStudentFromDb(id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Student is deleted successfully',
+      data: student,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message as unknown as string,
+    });
+  }
+};
+
 export const studentController = {
   createStudent,
   getAllStudents,
   getStudentById,
+  deleteStudent,
 };

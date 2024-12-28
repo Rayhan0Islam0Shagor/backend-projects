@@ -1,69 +1,44 @@
 import { z } from 'zod';
 
-// Define Zod schemas for each sub-object
-const userNameValidationSchema = z.object({
-  firstName: z
-    .string()
-    .min(2, 'First name must be at least 2 characters long.')
-    .max(20, 'First name cannot exceed 20 characters.')
-    .trim(),
-  middleName: z.string().trim().optional(),
-  lastName: z
-    .string()
-    .min(2, 'Last name must be at least 2 characters long.')
-    .max(20, 'Last name cannot exceed 20 characters.')
-    .trim(),
+const userNameSchema = z.object({
+  firstName: z.string().min(2).max(20),
+  middleName: z.string().optional(),
+  lastName: z.string().min(2).max(20),
 });
 
-const guardianValidationSchema = z.object({
-  fatherName: userNameValidationSchema,
-  fatherOccupation: z.string().trim(),
-  fatherContactNo: z.string().trim(),
-  motherName: userNameValidationSchema,
-  motherOccupation: z.string().trim(),
-  motherContactNo: z.string().trim(),
+const guardianSchema = z.object({
+  fatherName: userNameSchema,
+  fatherOccupation: z.string(),
+  fatherContactNo: z.string(),
+  motherName: userNameSchema,
+  motherOccupation: z.string(),
+  motherContactNo: z.string(),
 });
 
-const localGuardianValidationSchema = z.object({
-  name: userNameValidationSchema,
-  occupation: z.string().trim(),
-  contactNo: z.string().trim(),
-  address: z.string().trim(),
+const localGuardianSchema = z.object({
+  name: userNameSchema,
+  occupation: z.string(),
+  contactNo: z.string(),
+  address: z.string(),
 });
 
 const studentValidationSchema = z.object({
-  id: z.string().trim(),
-  name: userNameValidationSchema,
-  email: z.string().email('Invalid email address.').trim(),
-  dob: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date of birth must be in YYYY-MM-DD format.')
-    .optional(),
-  contactNo: z.string().trim(),
-  emergencyContactNo: z.string().trim(),
-  presentAddress: z.string().trim(),
-  permanentAddress: z.string().trim(),
-  profileImg: z.string().trim().optional(),
-  guardian: guardianValidationSchema,
-  localGuardian: localGuardianValidationSchema,
-  gender: z.enum(['male', 'female'], {
-    errorMap: () => ({ message: 'Gender must be either "male" or "female".' }),
-  }),
-  bloodGroup: z
-    .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'], {
-      errorMap: () => ({
-        message:
-          'Invalid blood group. Allowed values are A+, A-, B+, B-, AB+, AB-, O+, O-.',
-      }),
-    })
-    .optional(),
-  isActive: z
-    .enum(['active', 'blocked'], {
-      errorMap: () => ({
-        message: 'Status must be either "active" or "blocked".',
-      }),
-    })
-    .default('active'),
+  id: z.string(),
+  password: z.string().max(20),
+  name: userNameSchema,
+  email: z.string().email(),
+  dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // YYYY-MM-DD
+  contactNo: z.string(),
+  emergencyContactNo: z.string(),
+  presentAddress: z.string(),
+  permanentAddress: z.string(),
+  profileImg: z.string().url().optional(),
+  guardian: guardianSchema,
+  localGuardian: localGuardianSchema,
+  gender: z.enum(['male', 'female']),
+  bloodGroup: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
+  isActive: z.enum(['active', 'blocked']).optional(),
+  isDeleted: z.boolean().optional().default(false),
 });
 
 export type IStudent = z.infer<typeof studentValidationSchema>;

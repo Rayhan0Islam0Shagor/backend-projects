@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 
 export interface IStudent {
   id: string;
+  password: string;
   name: Username;
   email: string;
   gender: 'male' | 'female';
@@ -15,6 +16,7 @@ export interface IStudent {
   guardian: Guardian;
   localGuardian: LocalGuardian;
   isActive: 'active' | 'blocked';
+  isDeleted: boolean;
 }
 
 export type Username = {
