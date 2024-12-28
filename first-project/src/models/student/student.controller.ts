@@ -44,10 +44,6 @@ const getAllStudents = async (req: Request, res: Response) => {
       data: students,
     });
   } catch (error: any) {
-    console.log(
-      `⚠️ ~ file: student.controller.ts:16 ~ createStudent ~ error:`,
-      error,
-    );
     res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -68,10 +64,6 @@ const getStudentById = async (req: Request, res: Response) => {
       data: student,
     });
   } catch (error: any) {
-    console.log(
-      `⚠️ ~ file: student.controller.ts:16 ~ createStudent ~ error:`,
-      error,
-    );
     res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -100,9 +92,41 @@ const deleteStudent = async (req: Request, res: Response) => {
   }
 };
 
+const updateStudent = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const studentData = req.body;
+
+    const validStudent = validateStudent(studentData);
+
+    const result = await studentService.updateStudentIntoDb(id, validStudent);
+
+    res.status(200).json({
+      success: true,
+      message: 'Student is updated successfully',
+      data: result,
+    });
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid student data',
+        error: getErrorMessage(error.errors),
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Internal server error',
+        error: error as unknown as any,
+      });
+    }
+  }
+};
+
 export const studentController = {
   createStudent,
   getAllStudents,
   getStudentById,
   deleteStudent,
+  updateStudent,
 };
