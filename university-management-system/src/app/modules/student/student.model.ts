@@ -106,11 +106,7 @@ const studentSchema = new Schema<IStudent>(
       trim: true,
     },
     dob: {
-      type: String,
-      validate: {
-        validator: (v: string) => !v || /^\d{4}-\d{2}-\d{2}$/.test(v),
-        message: 'Date of birth must be in YYYY-MM-DD format.',
-      },
+      type: Date,
       trim: true,
     },
     contactNo: {

@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import { studentService } from './student.service';
-import { validateStudent } from './student.validation';
 import sendResponse from '../../utils/sendResponse';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
@@ -46,9 +45,9 @@ const updateStudent = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const studentData = req.body;
 
-  const validStudent = validateStudent(studentData);
+  // const validStudent = validateStudent(studentData);
 
-  const result = await studentService.updateStudentIntoDb(id, validStudent);
+  const result = await studentService.updateStudentIntoDb(id, studentData);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

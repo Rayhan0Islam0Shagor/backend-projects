@@ -8,7 +8,7 @@ export interface IStudent {
   email: string;
   gender: 'male' | 'female';
   profileImg?: string;
-  dob: string;
+  dob?: Date;
   contactNo: string;
   emergencyContactNo: string;
   bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';

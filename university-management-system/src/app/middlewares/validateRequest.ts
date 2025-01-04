@@ -9,8 +9,8 @@ const validateRequest = (schema: AnyZodObject) => {
       });
 
       next();
-    } catch (error) {
-      next(error);
+    } catch (err) {
+      next(err);
     }
   };
 };
