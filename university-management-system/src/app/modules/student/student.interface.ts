@@ -8,7 +8,7 @@ export interface IStudent {
   email: string;
   gender: 'male' | 'female';
   profileImg?: string;
-  dob?: Date;
+  dob?: string;
   contactNo: string;
   emergencyContactNo: string;
   bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
@@ -16,6 +16,7 @@ export interface IStudent {
   permanentAddress: string;
   guardian: Guardian;
   localGuardian: LocalGuardian;
+  admissionSemester: Types.ObjectId;
   isDeleted: boolean;
 }
 

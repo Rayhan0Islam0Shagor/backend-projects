@@ -106,7 +106,7 @@ const studentSchema = new Schema<IStudent>(
       trim: true,
     },
     dob: {
-      type: Date,
+      type: String,
       trim: true,
     },
     contactNo: {
@@ -158,6 +158,11 @@ const studentSchema = new Schema<IStudent>(
           'Invalid blood group. Allowed values are A+, A-, B+, B-, AB+, AB-, O+, O-.',
       },
       trim: true,
+    },
+    admissionSemester: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'Admission semester is required.'],
+      ref: 'AcademicSemester',
     },
     isDeleted: {
       type: Boolean,

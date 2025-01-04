@@ -1,16 +1,24 @@
 import { generateDefaultPassword } from '../../utils/generatePassword';
+import AcademicSemesterModel from '../academicSemester/academicSemester.model';
 import { IStudent } from '../student/student.interface';
 import StudentModel from '../student/student.model';
-import { generateId } from '../utils/counter.model';
 import { TUser } from './user.interface';
 import UserModel from './user.model';
+import { generateStudentId } from './user.utils';
 
 const createStudentIntoDb = async (password: string, studentData: IStudent) => {
   const user: Pick<TUser, 'role' | 'password' | 'id'> = {} as TUser;
 
   user.password = password || generateDefaultPassword();
   user.role = 'student';
-  user.id = await generateId('user');
+
+  const admissionSemester = await AcademicSemesterModel.findById(
+    studentData.admissionSemester,
+  );
+  if (!admissionSemester) {
+    throw new Error('Admission semester not found');
+  }
+  user.id = await generateStudentId(admissionSemester);
 
   // create a user
   const newUser = await UserModel.create(user);
