@@ -5,6 +5,16 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
   let message = 'Something went wrong';
   let errorMessages: { path: string; message: string }[] = [];
 
+  // handle Zod validation errors
+  if (error?.name === 'ZodError') {
+    statusCode = 400;
+    message = 'Validation Error';
+    errorMessages = error.issues.map((issue: any) => ({
+      path: issue.path[0],
+      message: issue.message,
+    }));
+  }
+
   // Handle Mongoose Validation Errors
   if (error?.name === 'ValidationError') {
     statusCode = 400;
