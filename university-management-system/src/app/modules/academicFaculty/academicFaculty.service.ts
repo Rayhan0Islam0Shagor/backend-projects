@@ -1,3 +1,4 @@
+import AppError from '../../errors/AppError';
 import { TAcademicFaculty } from './academicFaculty.interface';
 import AcademicFacultyModel from './academicFaculty.model';
 
@@ -22,7 +23,7 @@ const updateAcademicFacultyIntoDB = async (
   payload: Partial<TAcademicFaculty>,
 ) => {
   if (!payload.name) {
-    throw new Error('Invalid Faculty Data');
+    throw new AppError(400, 'Invalid Faculty Data');
   }
 
   const result = await AcademicFacultyModel.findOneAndUpdate(

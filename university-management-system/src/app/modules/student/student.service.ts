@@ -1,19 +1,33 @@
+import { IStudent } from './student.interface';
 import StudentModel from './student.model';
-import { IStudent } from './student.validation';
 
 const getAllStudentsFromDb = async () => {
-  const students = await StudentModel.find();
+  const students = await StudentModel.find()
+    .populate('admissionSemester')
+    .populate({
+      path: 'academicDepartment',
+      populate: {
+        path: 'academicFaculty',
+      },
+    });
   return students;
 };
 
 const getStudentByIdFromDb = async (id: string) => {
-  // const student = await StudentModel.findOne({ id });
+  const student = await StudentModel.findById(id)
+    .populate('admissionSemester')
+    .populate({
+      path: 'academicDepartment',
+      populate: {
+        path: 'academicFaculty',
+      },
+    });
 
-  const student = await StudentModel.aggregate([
-    {
-      $match: { id },
-    },
-  ]);
+  // const student = await StudentModel.aggregate([
+  //   {
+  //     $match: { id },
+  //   },
+  // ]);
 
   return student;
 };

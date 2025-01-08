@@ -1,5 +1,6 @@
 import mongoose, { Mongoose } from 'mongoose';
 import config from '.';
+import AppError from '../errors/AppError';
 
 interface MongooseConnection {
   conn: Mongoose | null;
@@ -18,7 +19,7 @@ if (!cached) {
 const connectDB = async () => {
   if (cached.conn) return cached.conn;
 
-  if (!config.database_url) throw new Error('Missing MONGODB_URL');
+  if (!config.database_url) throw new AppError(404, 'Missing MONGODB_URL');
 
   cached.promise =
     cached.promise ||
