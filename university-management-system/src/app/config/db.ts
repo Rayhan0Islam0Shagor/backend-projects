@@ -1,6 +1,5 @@
 import mongoose, { Mongoose } from 'mongoose';
-
-const MONGODB_URL = process.env.DATABASE_URL;
+import config from '.';
 
 interface MongooseConnection {
   conn: Mongoose | null;
@@ -19,18 +18,18 @@ if (!cached) {
 const connectDB = async () => {
   if (cached.conn) return cached.conn;
 
-  if (!MONGODB_URL) throw new Error('Missing MONGODB_URL');
+  if (!config.database_url) throw new Error('Missing MONGODB_URL');
 
   cached.promise =
     cached.promise ||
-    mongoose.connect(MONGODB_URL, {
+    mongoose.connect(config.database_url, {
       dbName: 'university-management-system',
       bufferCommands: false,
     });
 
   cached.conn = await cached.promise;
 
-  console.log('Connected to MongoDB', cached.conn?.ConnectionStates);
+  console.log('Connected to MongoDB', cached.conn?.Connection);
 
   return cached.conn;
 };
