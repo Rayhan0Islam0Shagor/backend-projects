@@ -1,72 +1,85 @@
 import { ErrorRequestHandler } from 'express';
+import { ZodError } from 'zod';
+import { TErrorSource } from '../interfaces/error.interface';
+import handleZodError from '../errors/handleZodError';
+import handleMongooseValidationError from '../errors/handleMongooseValidationError';
+import handleCastError from '../errors/handleCastError';
+import handleDuplicateError from '../errors/handleDuplicateError';
+import AppError from '../errors/AppError';
 
 const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
-  let statusCode = 500;
-  let message = 'Something went wrong';
-  let errorMessages: { path: string; message: string }[] = [];
+  // setting default values
+  let statusCode = error?.statusCode || 500;
+  let message = error?.message || 'Something went wrong';
+  let errorSources: TErrorSource[] = [];
 
   // handle Zod validation errors
-  if (error?.name === 'ZodError') {
-    statusCode = 400;
-    message = 'Validation Error';
-    errorMessages = error.issues.map((issue: any) => ({
-      path: issue.path[0],
-      message: issue.message,
-    }));
+  if (error instanceof ZodError) {
+    const simplifiedError = handleZodError(error);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorSources = simplifiedError.errorSources;
   }
 
   // Handle Mongoose Validation Errors
-  if (error?.name === 'ValidationError') {
-    statusCode = 400;
-    message = 'Validation Error';
-    errorMessages = Object.keys(error.errors).map((key) => ({
-      path: key,
-      message: error.errors[key].message,
-    }));
+  else if (error?.name === 'ValidationError') {
+    const simplifiedError = handleMongooseValidationError(error);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorSources = simplifiedError.errorSources;
   }
 
   // Handle Mongoose Cast Errors (Invalid ObjectId)
   else if (error?.name === 'CastError') {
-    statusCode = 400;
-    message = `Invalid ${error.path}: ${error.value}`;
-    errorMessages = [{ path: error.path, message }];
+    const simplifiedError = handleCastError(error);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorSources = simplifiedError.errorSources;
   }
 
   // Handle Mongoose Duplicate Key Errors
   else if (error?.code === 11000) {
-    statusCode = 400;
-    message = 'Duplicate key error';
-    errorMessages = Object.keys(error.keyValue).map((key) => ({
-      path: key,
-      message: `Duplicate value: ${error.keyValue[key]}`,
-    }));
+    const simplifiedError = handleDuplicateError(error);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorSources = simplifiedError.errorSources;
   }
 
   // Handle Custom Errors
-  else if (error?.statusCode) {
+  else if (error instanceof AppError) {
     statusCode = error.statusCode;
-    message = error.message || message;
-    if (error.errors) {
-      errorMessages = error.errors.map(
-        (err: { path: string; message: string }) => ({
-          path: err.path,
-          message: err.message,
-        }),
-      );
-    }
-  }
-
-  // Fallback for Unknown Errors
-  else if (error?.message) {
     message = error.message;
+    errorSources = [
+      {
+        path: '',
+        message: error.message,
+      },
+    ];
   }
 
-  res.status(statusCode).json({
+  // Handle Unknown Errors
+  else if (error instanceof Error) {
+    message = error.message;
+    errorSources = [
+      {
+        path: '',
+        message: error.message,
+      },
+    ];
+  }
+
+  const response = {
     success: false,
     message,
-    errors: errorMessages,
-    stack: process.env.NODE_ENV === 'production' ? undefined : error.stack, // Hide stack trace in production
-  });
+    errors: errorSources,
+    stack: error.stack,
+  };
+
+  if (process.env.NODE_ENV === 'production') {
+    delete response.stack;
+  }
+
+  res.status(statusCode).json(response);
 };
 
 export default globalErrorHandler;
