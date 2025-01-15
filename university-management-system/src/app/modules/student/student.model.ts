@@ -201,7 +201,9 @@ studentSchema.pre('aggregate', function (next) {
 
 // virtual
 studentSchema.virtual('fullName').get(function () {
-  const fullname = `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
+  const fullname = this?.name?.firstName
+    ? `${this?.name?.firstName} ${this?.name?.middleName} ${this?.name?.lastName}`
+    : undefined;
 
   return fullname;
 });

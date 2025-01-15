@@ -54,7 +54,8 @@ const createStudentIntoDb = async (password: string, studentData: IStudent) => {
   } catch (error) {
     await session.abortTransaction();
     await session.endSession();
-    throw new AppError(400, 'Failed to create student');
+    throw new Error(error as any);
+    // throw new AppError(400, 'Failed to create student');
   }
 };
 

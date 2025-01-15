@@ -3,16 +3,29 @@ import { IStudent } from './student.interface';
 import StudentModel from './student.model';
 import AppError from '../../errors/AppError';
 import UserModel from '../user/user.model';
+import QueryBuilder from '../../builder/QueryBuilder';
+import { studentSearchableFields } from './student.constant';
 
-const getAllStudentsFromDb = async () => {
-  const students = await StudentModel.find()
-    .populate('admissionSemester')
-    .populate({
-      path: 'academicDepartment',
-      populate: {
-        path: 'academicFaculty',
-      },
-    });
+const getAllStudentsFromDb = async (query: Record<string, unknown>) => {
+  const studentQuery = new QueryBuilder(
+    StudentModel.find()
+      .populate('admissionSemester')
+      .populate({
+        path: 'academicDepartment',
+        populate: {
+          path: 'academicFaculty',
+        },
+      }),
+    query,
+  )
+    .search(studentSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const students = await studentQuery.modelQuery;
+
   return students;
 };
 
